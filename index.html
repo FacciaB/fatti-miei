@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Lezioni</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+      h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .green {
+            color: green;
+        }
+
+        .lesson-list {
+            margin-top: 20px;
+            list-style-type: decimal;
+        }
+
+        .lesson-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+        }
+
+        .completed {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gestione Lezioni</h1>
+
+        <div>
+            <label for="materia">Materia</label>
+            <input type="text" id="materia" placeholder="Es. Matematica">
+
+            <label for="argomento">Argomento</label>
+            <input type="text" id="argomento" placeholder="Es. Algebra">
+
+            <label for="data">Data</label>
+            <input type="date" id="data">
+
+            <button id="creaLezione">Crea Lezione</button>
+        </div>
+
+        <div>
+            <button id="creaArgomento">Crea Argomento</button>
+        </div>
+
+        <div class="lesson-list">
+            <ul id="lesson-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Funzione per caricare le lezioni salvate nel localStorage
+        function loadLessons() {
+            const lessons = JSON.parse(localStorage.getItem('lessons')) || [];
+            const lessonList = document.getElementById('lesson-list');
+            lessonList.innerHTML = ''; // Reset lista
+
+            lessons.forEach((lesson, index) => {
+                const lessonItem = document.createElement('li');
+                lessonItem.classList.add('lesson-item');
+                lessonItem.innerHTML = `
+                    <strong>Materia:</strong> lesson.materia <br>
+                    <strong>Argomento:</strong>{lesson.argomento} <br>
+                    <strong>Data:</strong> ${lesson.data} <br>
+                    <button class="completed-btn{lesson.completed ? 'completed' : ''}" 
+                        onclick="toggleCompleted(index)">{lesson.completed ? 'Esercizio Svolto' : 'Esercizio Non Svolto'}
+                    </button>
+                `;
+                lessonList.appendChild(lessonItem);
+            });
+        }
+
+        // Funzione per salvare le lezioni nel localStorage
+        function saveLessons(lessons) {
+            localStorage.setItem('lessons', JSON.stringify(lessons));
+        }
+
+        // Funzione per aggiungere una lezione
+        document.getElementById('creaLezione').addEventListener('click', function() {
+            const materia = document.getElementById('materia').value;
+            const argomento = document.getElementById('argomento').value;
+            const data = document.getElementById('data').value;
+
+            if (materia && argomento && data) {
+                const lessons = JSON.parse(localStorage.getItem('lessons')) || [];
+                const newLesson = { materia, argomento, data, completed: false };
+                lessons.push(newLesson);
+                saveLessons(lessons);
+                loadLessons(); // Ricarica la lista aggiornata
+            } else {
+                alert('Compila tutti i campi!');
+            }
+          // Reset input fields
+            document.getElementById('materia').value = '';
+            document.getElementById('argomento').value = '';
+            document.getElementById('data').value = '';
+        });
+
+        // Funzione per segnare l'esercizio come svolto
+        function toggleCompleted(index) {
+            const lessons = JSON.parse(localStorage.getItem('lessons')) || [];
+            lessons[index].completed = !lessons[index].completed;
+            saveLessons(lessons);
+            loadLessons(); // Ricarica la lista aggiornata
+        }
+
+        // Funzione per aggiungere un argomento
+        document.getElementById('creaArgomento').addEventListener('click', function() {
+            const argomento = document.getElementById('argomento').value;
+            if (argomento) {
+                const lessons = JSON.parse(localStorage.getItem('lessons')) || [];
+                const lastLesson = lessons[lessons.length - 1];
+                if (lastLesson) {
+                    lastLesson.argomento = argomento;
+                    saveLessons(lessons);
+                    loadLessons(); // Ricarica la lista aggiornata
+                }
+            } else {
+                alert('Compila il campo Argomento!');
+            }
+        });
+      // Carica le lezioni al caricamento della pagina
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLessons();
+        });
+    </script>
+
+</body>
+</html>
